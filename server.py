@@ -35,6 +35,15 @@ def landing_page():
     return jsonify({'msg': 'Hello'}), 200
 
 
+@app.get('/get-all-users')
+def get_all_users():
+    all_users = list(users_collection.find())
+    return jsonify({"users": all_users})
+
+
+
+
+
 @app.route("/api/v1/users", methods=["POST"])
 def register():
     new_user = request.get_json()  # store the json body request
