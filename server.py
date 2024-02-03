@@ -4,7 +4,6 @@ import datetime
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from pymongo.mongo_client import MongoClient
-from pymongo.server_api import ServerApi
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,17 +36,14 @@ def landing_page():
 
 @app.get('/get-all-users')
 def get_all_users():
-    all_users = list(users_collection.find())
-    return jsonify({"users": all_users})
-
-
-
+    all_users = list(users_collection.find({}, {'_id': 0}))
+    return jsonify(all_users)
 
 
 @app.route("/api/v1/users", methods=["POST"])
 def register():
     new_user = request.get_json()  # store the json body request
-    new_user["password"] = hashlib.sha256(new_user["password"].encode("utf-8")).hexdigest()  # encrpt password
+    # new_user["password"] = hashlib.sha256(new_user["password"].encode("utf-8")).hexdigest()  # encrpt password
     doc = users_collection.find_one({"username": new_user["username"]})  # check if user exist
     if not doc:
         users_collection.insert_one(new_user)
@@ -76,6 +72,16 @@ def profile():
     current_user = get_jwt_identity()  # Get the identity of the current user
     user_from_db = users_collection.find_one({'username': current_user})
     if user_from_db:
+        del user_from_db['_id'], user_from_db['password']  # delete data we don't want to return
+        return jsonify({'profile': user_from_db}), 200
+    else:
+        return jsonify({'msg': 'Profile not found'}), 404
+
+
+@app.route("/api/v1/user/random", methods=["GET"])
+def random():
+    user_from_db = list(users_collection.aggregate([{"$sample": {"size": 1}}]))
+    if len(user_from_db) > 0:
         del user_from_db['_id'], user_from_db['password']  # delete data we don't want to return
         return jsonify({'profile': user_from_db}), 200
     else:
