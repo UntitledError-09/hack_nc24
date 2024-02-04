@@ -4,6 +4,7 @@ from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from pymongo.errors import PyMongoError
 from flask import jsonify
+from flask_cors import CORS, cross_origin
 from event import Event
 import controller as con
 
@@ -12,11 +13,18 @@ app.config['MONGO_URI'] = "mongodb+srv://testuser:test123@cluster0.cbncbab.mongo
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 mongo = PyMongo(app)
 api = Api(app)
+cors = CORS(app, resource={
+    r"/*": {
+        "origins": "*"
+    }
+})
+app.config['CORS_HEADERS'] = 'Content-Type'
 jwt = JWTManager(app)
 
 
 class UserSchema:
-    def __init__(self, username, password, age, interests=None, strengths=None, matched_users=None, pending_invites=None):
+    def __init__(self, username, password, age, interests=None, strengths=None, matched_users=None,
+                 pending_invites=None):
         self.username = username
         self.password = password
         self.age = age
