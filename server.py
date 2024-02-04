@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flask_pymongo import PyMongo
@@ -9,8 +11,8 @@ from event import Event
 import controller as con
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = "mongodb+srv://testuser:test123@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
-app.config['JWT_SECRET_KEY'] = 'your-secret-key'
+app.config['MONGO_URI'] = f"mongodb+srv://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 mongo = PyMongo(app)
 api = Api(app)
 cors = CORS(app, resource={
