@@ -31,8 +31,7 @@ This is a Flask REST API for a social networking app, featuring user registratio
 1. Run the Flask app:
 
     ```bash
-2. Update the MongoDB URI and JWT secret key in `server.py`:
-    python app.py
+      python server.py
     ```
 
 2. Access the API at `http://127.0.0.1:5000/`.
