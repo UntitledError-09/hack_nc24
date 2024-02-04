@@ -105,7 +105,7 @@ class RecommendationsResource(Resource):
 
         # similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
         similar_users_dict = [UserSchema.from_dict(user_data).to_dict() for user_data in similar_users]
-        return jsonify({"similar_users": similar_users_dict)
+        return jsonify({"similar_users": similar_users_dict})
 
 
 class RegisterResource(Resource):
