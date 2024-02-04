@@ -1,17 +1,31 @@
 import os
+import pathlib
 
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from pymongo.errors import PyMongoError
-from flask import jsonify
+from flask import jsonify, send_from_directory, send_file
 from flask_cors import CORS, cross_origin
 from event import Event
 import controller as con
 
-app = Flask(__name__)
-app.config['MONGO_URI'] = f"mongodb+srv://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
+app = Flask(__name__, static_folder='frontend/build')
+
+
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+
+app.config[
+    'MONGO_URI'] = f"mongodb+srv://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 mongo = PyMongo(app)
 api = Api(app)
@@ -95,15 +109,30 @@ class MatchedUsersResource(Resource):
 
 class RecommendationsResource(Resource):
     def get(self, username):
+        # user_interests = mongo.db.users.find_one({'username': username})['interests']
+        # similar_users = []
+
+        # for user in mongo.db.users.find({'username': {'$ne': username}}):
+        #     common_interests = set(user['interests']) & set(user_interests)
+        #     if len(common_interests) > 0:
+        #         similar_users.append(user)
+
+        # # similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
+        # similar_users_dict = [UserSchema.from_dict(user_data).to_dict() for user_data in similar_users]
+        # return jsonify({"similar_users": similar_users_dict})
+
         user_interests = mongo.db.users.find_one({'username': username})['interests']
+        pending_invites = mongo.db.users.find_one({'username': username})['pending_invites']
         similar_users = []
 
-        for user in mongo.db.users.find({'username': {'$ne': username}}):
+        # Get usernames to exclude
+        exclude_usernames = pending_invites + [username]
+
+        for user in mongo.db.users.find({'username': {'$nin': exclude_usernames}}):
             common_interests = set(user['interests']) & set(user_interests)
             if len(common_interests) > 0:
                 similar_users.append(user)
 
-        # similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
         similar_users_dict = [UserSchema.from_dict(user_data).to_dict() for user_data in similar_users]
         return jsonify({"similar_users": similar_users_dict})
 
