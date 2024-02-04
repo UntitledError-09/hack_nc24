@@ -47,13 +47,11 @@ class UserSchema:
 
 
 class UserResource(Resource):
-    # @jwt_required()
     def get(self, user_id):
         user_data = mongo.db.users.find_one_or_404({"_id": user_id}, {"_id": 0})
         user_instance = UserSchema.from_dict(user_data)
         return jsonify(user_instance.to_dict())
 
-#     @jwt_required()
     def put(self, user_id):
         current_user = get_jwt_identity()
         if current_user["_id"] != user_id:
@@ -66,7 +64,6 @@ class UserResource(Resource):
 
 
 class AllUsersResource(Resource):
-#     @jwt_required()
     def get(self):
         all_users_data = list(mongo.db.users.find({}, {"_id": 0}))
         all_users_instances = [UserSchema.from_dict(user_data).to_dict() for user_data in all_users_data]
@@ -74,7 +71,6 @@ class AllUsersResource(Resource):
 
 
 class MatchedUsersResource(Resource):
-#     @jwt_required()
     def get(self):
         current_user = get_jwt_identity()
         matched_users_ids = current_user.get("matched_users", [])
@@ -84,14 +80,17 @@ class MatchedUsersResource(Resource):
 
 
 class RecommendationsResource(Resource):
-#     @jwt_required()
-    def get(self):
-        current_user = get_jwt_identity()
-        interests = current_user.get("interests", [])
-        recommendations_data = list(
-            mongo.db.users.find({"interests": {"$in": interests}, "_id": {"$ne": current_user["_id"]}}, {"_id": 0}))
-        recommendations_instances = [UserSchema.from_dict(user_data).to_dict() for user_data in recommendations_data]
-        return jsonify({"recommendations": recommendations_instances})
+    def get(self, user_id):
+        user_interests = mongo.db.users.find_one({'_id': user_id})['interests']
+        similar_users = []
+
+        for user in mongo.db.users.find({'_id': {'$ne': user_id}}):
+            common_interests = set(user['interests']) & set(user_interests)
+            if len(common_interests) > 0:
+                similar_users.append(user)
+
+        similar_users_dict = [{'_id': user['_id'], 'interests': user['interests']} for user in similar_users]
+        return jsonify(similar_users=similar_users_dict)
 
 
 class RegisterResource(Resource):
@@ -120,64 +119,47 @@ class LoginResource(Resource):
             return {"message": "Invalid credentials"}, 401
 
 
+class EventResource(Resource):
+    def get(self, event_id):
+        event_data = mongo.db.events.find_one_or_404({"_id": event_id}, {"_id": 0})
+        return jsonify(event_data)
+
+    def put(self, event_id):
+        data = request.get_json()
+        mongo.db.events.update_one({"_id": event_id}, {"$set": data})
+        return {"message": "Event updated successfully"}
+
+    def delete(self, event_id):
+        mongo.db.events.delete_one({"_id": event_id})
+        return {"message": "Event deleted successfully"}
+
+
+class EventsResource(Resource):
+    def get(self):
+        all_events = list(mongo.db.events.find({}, {"_id": 0}))
+        return jsonify(all_events)
+
+    def post(self):
+        data = request.get_json()
+        event_id = mongo.db.events.insert_one(data).inserted_id
+        return {"message": "Event created successfully", "event_id": str(event_id)}
+
+
+class DeleteEventResource(Resource):
+    def delete(self, event_id):
+        mongo.db.events.delete_one({"_id": event_id})
+        return {"message": "Event deleted successfully"}
+
+
 api.add_resource(UserResource, '/update-user/<string:user_id>')
 api.add_resource(AllUsersResource, '/get-all-users')
 api.add_resource(MatchedUsersResource, '/get-matched-users')
 api.add_resource(RecommendationsResource, '/get-recommendations')
 api.add_resource(RegisterResource, '/register')
 api.add_resource(LoginResource, '/login')
-
-# ============================
-
-users_collection = db["users"]
-event_collection = db["events"]
-
-# Events
-@app.route('/add', methods=['POST'])
-def add():
-    data = request.json
-    name = data.get('name')
-    date = data.get('date')
-    time = data.get('time')
-    location = data.get('location')
-    
-    con.create_event(name, date, time, location, None)
-    
-    return "Success"
-
-
-@app.route('/events')
-def show_events():
-    all_events = list(event_collection.find({}, {'_id': 0}))
-    return jsonify(all_events)
-
-@app.route('/delete/<id>')
-def delete(id):
-    event = Event.objects.get(id=id)
-    event.delete()
-    return "Success"
-
-# ============================
-# Interest based recommendation
-@app.route('/recommendations/<user_id>')
-def get_recommendations(user_id):
-    # Get interests of the given user
-    user_interests = users_collection.find_one({'_id': user_id})['interests']
-
-    # Find other users with similar interests
-    similar_users = []
-    for user in users_collection.find({'_id': {'$ne': user_id}}):
-        common_interests = set(user['interests']) & set(user_interests)
-        if len(common_interests) > 0:
-            similar_users.append(user)
-
-    # Convert similar_users to a list of dictionaries
-    similar_users_dict = [{'_id': user['_id'], 'interests': user['interests']} for user in similar_users]
-
-    # Return JSON response
-    return jsonify(similar_users=similar_users_dict)
-
-# ============================
+api.add_resource(EventResource, '/event/<string:event_id>')
+api.add_resource(EventsResource, '/events')
+api.add_resource(DeleteEventResource, '/delete-event/<string:event_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
