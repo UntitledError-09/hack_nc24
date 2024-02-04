@@ -8,7 +8,7 @@ from event import Event
 import controller as con
 
 app = Flask(__name__)
-app.config['MONGO_URI'] = "mongodb+srv://testuser:test123@cluster0.cbncbab.mongodb.net/?retryWrites=true&w=majority"
+app.config['MONGO_URI'] = "mongodb+srv://testuser:test123@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
 app.config['JWT_SECRET_KEY'] = 'your-secret-key'
 mongo = PyMongo(app)
 api = Api(app)
@@ -16,9 +16,10 @@ jwt = JWTManager(app)
 
 
 class UserSchema:
-    def __init__(self, username, password, interests=None, strengths=None, matched_users=None, pending_invites=None):
+    def __init__(self, username, password, age, interests=None, strengths=None, matched_users=None, pending_invites=None):
         self.username = username
         self.password = password
+        self.age = age
         self.interests = interests or []
         self.strengths = strengths or []
         self.matched_users = matched_users or []
@@ -28,6 +29,7 @@ class UserSchema:
         return {
             "username": self.username,
             "password": self.password,
+            "age": self.age,
             "interests": self.interests,
             "strengths": self.strengths,
             "matched_users": self.matched_users,
@@ -39,6 +41,7 @@ class UserSchema:
         return cls(
             username=data["username"],
             password=data["password"],
+            age=data["age"],
             interests=data.get("interests", []),
             strengths=data.get("strengths", []),
             matched_users=data.get("matched_users", []),
@@ -52,14 +55,14 @@ class UserResource(Resource):
         user_instance = UserSchema.from_dict(user_data)
         return jsonify(user_instance.to_dict())
 
-    def put(self, user_id):
-        current_user = get_jwt_identity()
-        if current_user["_id"] != user_id:
-            return {"message": "Unauthorized"}, 401
+    def put(self, username):
+        # current_user = get_jwt_identity()
+        # if current_user["username"] != username:
+        #     return {"message": "Unauthorized"}, 401
 
         data = request.get_json()
         user_instance = UserSchema.from_dict(data)
-        mongo.db.users.update_one({"_id": user_id}, {"$set": user_instance.to_dict()})
+        mongo.db.users.update_one({"username": username}, {"$set": user_instance.to_dict()})
         return {"message": "User updated successfully"}
 
 
@@ -71,10 +74,11 @@ class AllUsersResource(Resource):
 
 
 class MatchedUsersResource(Resource):
-    def get(self):
-        current_user = get_jwt_identity()
-        matched_users_ids = current_user.get("matched_users", [])
-        matched_users_data = list(mongo.db.users.find({"_id": {"$in": matched_users_ids}}, {"_id": 0}))
+    def get(self, username):
+        # current_user = get_jwt_identity()
+        # matched_users_ids = current_user.get("matched_users", [])
+        matched_usernames = mongo.db.users.find_one({"username": username})["matched_users"]
+        matched_users_data = list(mongo.db.users.find({"username": {"$in": matched_usernames}}, {"_id": 0}))
         matched_users_instances = [UserSchema.from_dict(user_data).to_dict() for user_data in matched_users_data]
         return jsonify({"matched_users": matched_users_instances})
 
@@ -113,7 +117,7 @@ class LoginResource(Resource):
 
         user_data = mongo.db.users.find_one({"username": username, "password": password}, {"_id": 1})
         if user_data:
-            access_token = create_access_token(identity=UserSchema.from_dict(user_data).to_dict())
+            access_token = create_access_token(identity=username)
             return {"access_token": access_token}
         else:
             return {"message": "Invalid credentials"}, 401
@@ -151,9 +155,9 @@ class DeleteEventResource(Resource):
         return {"message": "Event deleted successfully"}
 
 
-api.add_resource(UserResource, '/update-user/<string:user_id>')
+api.add_resource(UserResource, '/update-user/<string:username>')
 api.add_resource(AllUsersResource, '/get-all-users')
-api.add_resource(MatchedUsersResource, '/get-matched-users')
+api.add_resource(MatchedUsersResource, '/get-matched-users/<string:username>')
 api.add_resource(RecommendationsResource, '/get-recommendations')
 api.add_resource(RegisterResource, '/register')
 api.add_resource(LoginResource, '/login')
