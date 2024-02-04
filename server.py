@@ -1,17 +1,31 @@
 import os
+import pathlib
 
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from pymongo.errors import PyMongoError
-from flask import jsonify
+from flask import jsonify, send_from_directory, send_file
 from flask_cors import CORS, cross_origin
 from event import Event
 import controller as con
 
-app = Flask(__name__)
-app.config['MONGO_URI'] = f"mongodb+srv://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
+app = Flask(__name__, static_folder='frontend/build')
+
+
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
+
+
+app.config[
+    'MONGO_URI'] = f"mongodb+srv://{os.getenv('MONGODB_USERNAME')}:{os.getenv('MONGODB_PASSWORD')}@cluster0.cbncbab.mongodb.net/main?retryWrites=true&w=majority"
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET')
 mongo = PyMongo(app)
 api = Api(app)
