@@ -19,7 +19,7 @@ This is a Flask REST API for a social networking app, featuring user registratio
     pip install Flask Flask-RESTful Flask-PyMongo Flask-JWT-Extended pymongo
     ```
 
-2. Update the MongoDB URI and JWT secret key in `app.py`:
+2. Update the MongoDB URI and JWT secret key in `server.py`:
 
     ```python
     app.config['MONGO_URI'] = "your-mongodb-uri"
@@ -31,6 +31,7 @@ This is a Flask REST API for a social networking app, featuring user registratio
 1. Run the Flask app:
 
     ```bash
+2. Update the MongoDB URI and JWT secret key in `server.py`:
     python app.py
     ```
 
