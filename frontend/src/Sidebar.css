@@ -1,0 +1,91 @@
+/* Sidebar.css */
+/* Sidebar.css */
+.sidebar {
+    width: 300px;
+    background-color: #b35e45; /* Light brown */
+    height: 100%;
+    padding: 20px;
+    z-index: 100;
+  }
+  
+  .profile-buttons {
+    margin-bottom: 20px;
+  }
+  
+  .profile-buttons button {
+    margin-right: 10px;
+  }
+  
+  .scrollable-card {
+    margin-top: 20px;
+    height: 40%; /* Make the cards half the height of the sidebar */
+    overflow-y: auto; /* Enable internal scrolling */
+    background-color: #f9f9f9; /* Light gray */
+    border-radius: 10px;
+  }
+
+  .scrollable-card p {
+    margin: 0;
+  }
+
+  .scrollable-card TextField {
+    margin: 0;
+  }
+  
+  .scrollable-content {
+    overflow-y: auto; /* Enable internal scrolling for card content */
+    height: 35vh; /* Ensure content fits within the card */
+    padding: 0.5vh;
+  }
+  
+  /* Custom styling for List items */
+  .list-item {
+    border-bottom: 1px solid #ddd; /* Light gray */
+  }
+  
+  .list-item:last-child {
+    border-bottom: none; /* Remove border for last item */
+  }
+  
+  .list-item:hover {
+    background-color: #ddd; /* Light gray on hover */
+  }
+  
+  .list-item-button {
+    padding: 10px;
+  }
+  
+  .list-item-text {
+    font-weight: bold;
+  }  
+
+  /* Sidebar.css */
+.sidebar {
+    width: 300px;
+    background-color: #b35e45; /* Light brown */
+    height: 100%;
+    padding: 20px;
+  }
+  
+  .profile-buttons {
+    margin-bottom: 20px;
+  }
+  
+  .profile-buttons button {
+    width: 100%;
+    margin-bottom: 10px;
+    background-color: #9b2918; /* Dark red */
+    color: #fff; /* White text */
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .profile-buttons button:last-child {
+    margin-bottom: 0; /* Remove bottom margin for the last button */
+  }
+  
+  .profile-buttons button:hover {
+    background-color: #7c1f14; /* Dark red on hover */
+  }  

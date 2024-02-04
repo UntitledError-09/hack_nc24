@@ -1,0 +1,53 @@
+/* ProfilePopup.css */
+
+.profile-popup {
+    margin: 0 auto;
+    height: 100vh;
+  }
+  
+  .profile-popup__title {
+    text-align: center;
+  }
+  
+  .profile-popup__content {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .profile-popup__input {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  .profile-popup__input label {
+    font-weight: bold;
+  }
+  
+  .profile-popup__interests {
+    margin-top: 16px;
+  }
+  
+  .profile-popup__interests label {
+    display: block;
+  }
+  
+  .profile-popup__checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .profile-popup__checkbox-item {
+    display: flex;
+    align-items: center;
+    margin-right: 16px;
+  }
+  
+  .profile-popup__checkbox-item input[type="checkbox"] {
+    margin-right: 8px;
+  }
+  
+  .profile-popup__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }  

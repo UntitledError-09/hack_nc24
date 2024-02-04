@@ -1,0 +1,85 @@
+/* ChatDialog.css */
+.chat-dialog {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    max-height: 60vh;
+    overflow-y: auto;
+    border-radius: 8px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+    transform: translateY(100%);
+  }
+  
+  .chat-dialog.open {
+    transform: translateY(0);
+  }
+  
+  .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .chat-title {
+    font-weight: bold;
+    color: #333; /* Person's name color */
+  }
+  
+  .close-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .chat-messages {
+    flex-grow: 1;
+    margin-top: 8px;
+  }
+  
+  .chat-message {
+    margin-bottom: 8px;
+  }
+  
+  .chat-message.you {
+    color: #000; /* Your message color */
+  }
+  
+  .chat-message.other {
+    color: #000; /* Other person's message color */
+  }
+  
+  .chat-input {
+    display: flex;
+    align-items: center;
+  }
+  
+  .chat-input input {
+    flex-grow: 1;
+    margin-right: 8px;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .send-button {
+    background-color: #0073b1;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .send-button:hover {
+    background-color: #005d8d;
+  }  
