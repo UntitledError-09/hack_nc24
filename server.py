@@ -70,9 +70,8 @@ def login():
 @jwt_required
 def profile():
     current_user = get_jwt_identity()  # Get the identity of the current user
-    user_from_db = users_collection.find_one({'username': current_user})
+    user_from_db = users_collection.find_one({'username': current_user}, {'_id': 0})
     if user_from_db:
-        del user_from_db['_id'], user_from_db['password']  # delete data we don't want to return
         return jsonify({'profile': user_from_db}), 200
     else:
         return jsonify({'msg': 'Profile not found'}), 404
@@ -80,9 +79,8 @@ def profile():
 
 @app.route("/api/v1/user/random", methods=["GET"])
 def random():
-    user_from_db = list(users_collection.aggregate([{"$sample": {"size": 1}}]))
+    user_from_db = list(users_collection.aggregate([{"$sample": {"size": 1}}, {"$unset": "_id"}]))
     if len(user_from_db) > 0:
-        del user_from_db['_id'], user_from_db['password']  # delete data we don't want to return
         return jsonify({'profile': user_from_db}), 200
     else:
         return jsonify({'msg': 'Profile not found'}), 404
