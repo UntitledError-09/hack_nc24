@@ -23,7 +23,7 @@ const MainContainer = () => {
     const fetchData = async () => {
       try {
         const usernameInSession = sessionStorage.getItem('username');
-        const response = await fetch(`http://127.0.0.1:5000/get-recommendations/${usernameInSession}`);
+        const response = await fetch(`/get-recommendations/${usernameInSession}`);
         const data = await response.json();
         // Append YouTube video to each person's data
         const personsDataWithVideos = data.similar_users.map((person, index) => ({
@@ -115,7 +115,7 @@ const MainContainer = () => {
     // Update the entire user profile of the user whose card is swiped right
     const userProfileToUpdate = updatedUserData.find(user => user.username === userToInvite);
     try {
-      await fetch(`http://127.0.0.1:5000/update-user/${userToInvite}`, {
+      await fetch(`/update-user/${userToInvite}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

@@ -34,7 +34,7 @@ This is a Flask REST API for a social networking app, featuring user registratio
       python server.py
     ```
 
-2. Access the API at `http://127.0.0.1:5000/`.
+2. Access the API at `/`.
 
 ## API Endpoints
 

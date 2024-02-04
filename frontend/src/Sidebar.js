@@ -19,7 +19,7 @@ const Sidebar = () => {
     // Fetch user data from the API and filter to find the logged-in user
     const fetchUserData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/get-all-users');
+        const response = await fetch('/get-all-users');
         if (!response.ok) {
           throw new Error('Failed to fetch user data');
         }

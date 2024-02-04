@@ -35,7 +35,7 @@ const LoginSignup = ({ setIsLoggedIn, isLogin, setIsLogin }) => {
         e.preventDefault();
         if (isLogin) {
             // Perform login
-            const response = await fetch('http://127.0.0.1:5000/login', {
+            const response = await fetch('/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -49,7 +49,7 @@ const LoginSignup = ({ setIsLoggedIn, isLogin, setIsLogin }) => {
                 setIsLoggedIn(true); // Set isLoggedIn to true
                 
                 // Call get-all-users and store data.users in the session
-                const usersResponse = await fetch('http://127.0.0.1:5000/get-all-users');
+                const usersResponse = await fetch('/get-all-users');
                 if (usersResponse.ok) {
                     const userData = await usersResponse.json();
                     sessionStorage.setItem('userData', JSON.stringify(userData.users));
@@ -59,7 +59,7 @@ const LoginSignup = ({ setIsLoggedIn, isLogin, setIsLogin }) => {
             }
         } else {
             // Perform signup
-            const response = await fetch('http://127.0.0.1:5000/register', {
+            const response = await fetch('/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -80,7 +80,7 @@ const LoginSignup = ({ setIsLoggedIn, isLogin, setIsLogin }) => {
                 setIsLoggedIn(true); // Set isLoggedIn to true
                 
                 // Call get-all-users and store data.users in the session
-                const usersResponse = await fetch('http://127.0.0.1:5000/get-all-users');
+                const usersResponse = await fetch('/get-all-users');
                 if (usersResponse.ok) {
                     const userData = await usersResponse.json();
                     sessionStorage.setItem('userData', JSON.stringify(userData.users));
