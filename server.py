@@ -109,15 +109,30 @@ class MatchedUsersResource(Resource):
 
 class RecommendationsResource(Resource):
     def get(self, username):
+        # user_interests = mongo.db.users.find_one({'username': username})['interests']
+        # similar_users = []
+
+        # for user in mongo.db.users.find({'username': {'$ne': username}}):
+        #     common_interests = set(user['interests']) & set(user_interests)
+        #     if len(common_interests) > 0:
+        #         similar_users.append(user)
+
+        # # similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
+        # similar_users_dict = [UserSchema.from_dict(user_data).to_dict() for user_data in similar_users]
+        # return jsonify({"similar_users": similar_users_dict})
+
         user_interests = mongo.db.users.find_one({'username': username})['interests']
+        pending_invites = mongo.db.users.find_one({'username': username})['pending_invites']
         similar_users = []
 
-        for user in mongo.db.users.find({'username': {'$ne': username}}):
+        # Get usernames to exclude
+        exclude_usernames = pending_invites + [username]
+
+        for user in mongo.db.users.find({'username': {'$nin': exclude_usernames}}):
             common_interests = set(user['interests']) & set(user_interests)
             if len(common_interests) > 0:
                 similar_users.append(user)
 
-        # similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
         similar_users_dict = [UserSchema.from_dict(user_data).to_dict() for user_data in similar_users]
         return jsonify({"similar_users": similar_users_dict})
 
