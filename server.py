@@ -94,16 +94,16 @@ class MatchedUsersResource(Resource):
 
 
 class RecommendationsResource(Resource):
-    def get(self, user_id):
-        user_interests = mongo.db.users.find_one({'_id': user_id})['interests']
+    def get(self, username):
+        user_interests = mongo.db.users.find_one({'username': username})['interests']
         similar_users = []
 
-        for user in mongo.db.users.find({'_id': {'$ne': user_id}}):
+        for user in mongo.db.users.find({'username': {'$ne': username}}):
             common_interests = set(user['interests']) & set(user_interests)
             if len(common_interests) > 0:
                 similar_users.append(user)
 
-        similar_users_dict = [{'_id': user['_id'], 'interests': user['interests']} for user in similar_users]
+        similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
         return jsonify(similar_users=similar_users_dict)
 
 
@@ -168,7 +168,7 @@ class DeleteEventResource(Resource):
 api.add_resource(UserResource, '/update-user/<string:username>')
 api.add_resource(AllUsersResource, '/get-all-users')
 api.add_resource(MatchedUsersResource, '/get-matched-users/<string:username>')
-api.add_resource(RecommendationsResource, '/get-recommendations')
+api.add_resource(RecommendationsResource, '/get-recommendations/<string:username>')
 api.add_resource(RegisterResource, '/register')
 api.add_resource(LoginResource, '/login')
 api.add_resource(EventResource, '/event/<string:event_id>')
