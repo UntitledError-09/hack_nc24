@@ -4,46 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Red Sidebar Green Main Container</title>
-<style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: Arial, sans-serif;
-    }
-    
-    .container {
-        display: flex;
-    }
-    
-    .sidebar {
-        width: 300px;
-        background-color: red;
-        height: 100vh; /* Adjust as needed */
-        z-index: 100;
-    }
-    
-    .card-container {
-        flex: 1;
-        z-index: 10;
-        background-color: green;
-        padding: 20px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    .profile-card {
-        width: 60%;
-        padding: 20px;
-        background-color: #f9f9f9;
-        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
-        transition: transform 0.3s ease;
-    }
-    .hidden {
-        display: none;
-    }
-</style>
+<link rel="stylesheet" href="styles/styles.css">
 </head>
 <body>
 
@@ -68,35 +29,6 @@
         </div>
     </div>
 </div>
-<script>
-    document.addEventListener("keydown", function(event) {
-        const cards = document.querySelectorAll(".profile-card");
-        const currentIndex = Array.from(cards).findIndex(card => getComputedStyle(card).display !== "none");
-        let nextIndex;
-        arrow_dir = null
-        switch(event.key) {
-            case "ArrowLeft":
-                arrow_dir= "left";
-                nextIndex = currentIndex > 0 ? currentIndex - 1 : cards.length - 1;
-                break;
-            case "ArrowRight":
-                arrow_dir= "right";
-                nextIndex = currentIndex < cards.length - 1 ? currentIndex + 1 : 0;
-                break;
-            default:
-                return; // Exit function for other keys
-        }
-
-        const currentCard = cards[currentIndex];
-        const nextCard = cards[nextIndex];
-
-        currentCard.style.transform = arrow_dir == "right" ? "translateX(100%)" : "translateX(-100%)";
-        setTimeout(() => {
-            currentCard.classList.add("hidden");
-            nextCard.classList.remove("hidden");
-            nextCard.style.transform = "translateX(0)";
-        }, 300);
-    });
-</script>
+<script src="scripts/index.js"></script>
 </body>
 </html>
