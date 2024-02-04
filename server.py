@@ -103,8 +103,9 @@ class RecommendationsResource(Resource):
             if len(common_interests) > 0:
                 similar_users.append(user)
 
-        similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
-        return jsonify(similar_users=similar_users_dict)
+        # similar_users_dict = [{'username': user['username'], 'interests': user['interests']} for user in similar_users]
+        similar_users_dict = [UserSchema.from_dict(user_data).to_dict() for user_data in similar_users]
+        return jsonify({"similar_users": similar_users_dict)
 
 
 class RegisterResource(Resource):
