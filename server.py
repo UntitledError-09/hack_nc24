@@ -3,6 +3,9 @@ from flask_restful import Api, Resource
 from flask_pymongo import PyMongo
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity
 from pymongo.errors import PyMongoError
+from flask import jsonify
+from event import Event
+import controller as con
 
 app = Flask(__name__)
 app.config['MONGO_URI'] = "mongodb+srv://testuser:test123@cluster0.cbncbab.mongodb.net/?retryWrites=true&w=majority"
@@ -123,6 +126,58 @@ api.add_resource(MatchedUsersResource, '/get-matched-users')
 api.add_resource(RecommendationsResource, '/get-recommendations')
 api.add_resource(RegisterResource, '/register')
 api.add_resource(LoginResource, '/login')
+
+# ============================
+
+users_collection = db["users"]
+event_collection = db["events"]
+
+# Events
+@app.route('/add', methods=['POST'])
+def add():
+    data = request.json
+    name = data.get('name')
+    date = data.get('date')
+    time = data.get('time')
+    location = data.get('location')
+    
+    con.create_event(name, date, time, location, None)
+    
+    return "Success"
+
+
+@app.route('/events')
+def show_events():
+    all_events = list(event_collection.find({}, {'_id': 0}))
+    return jsonify(all_events)
+
+@app.route('/delete/<id>')
+def delete(id):
+    event = Event.objects.get(id=id)
+    event.delete()
+    return "Success"
+
+# ============================
+# Interest based recommendation
+@app.route('/recommendations/<user_id>')
+def get_recommendations(user_id):
+    # Get interests of the given user
+    user_interests = users_collection.find_one({'_id': user_id})['interests']
+
+    # Find other users with similar interests
+    similar_users = []
+    for user in users_collection.find({'_id': {'$ne': user_id}}):
+        common_interests = set(user['interests']) & set(user_interests)
+        if len(common_interests) > 0:
+            similar_users.append(user)
+
+    # Convert similar_users to a list of dictionaries
+    similar_users_dict = [{'_id': user['_id'], 'interests': user['interests']} for user in similar_users]
+
+    # Return JSON response
+    return jsonify(similar_users=similar_users_dict)
+
+# ============================
 
 if __name__ == '__main__':
     app.run(debug=True)
