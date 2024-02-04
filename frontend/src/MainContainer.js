@@ -63,19 +63,78 @@ const MainContainer = () => {
     };
   }, [visitedPersons, handleSwipe]);
 
-  const handleInterested = () => {
+  // const handleInterested = async () => {
+  //   if (currentCardIndex === personsData.length - 1) {
+  //     // Last card reached, no more persons to show
+  //     alert('No more persons to show.');
+  //     return;
+  //   }
+  //   // Add the current user's username to the pending_invites of the user whose card is swiped right
+  //   const currentUser = sessionStorage.getItem('username');
+  //   const userData = JSON.parse(sessionStorage.getItem('userData'));
+  //   const userToInvite = personsData[currentCardIndex].username;
+  //   const updatedUserData = userData.map(user => {
+  //     if (user.username === userToInvite) {
+  //       return {
+  //         ...user,
+  //         pending_invites: [...user.pending_invites, currentUser]
+  //       };
+  //     }
+  //     return user;
+  //   });
+  //   sessionStorage.setItem('userData', JSON.stringify(updatedUserData));
+  //   console.log(JSON.parse(sessionStorage.getItem('userData')));
+    
+  //   setVisitedPersons([...visitedPersons, personsData[currentCardIndex]]);
+  //   handleSwipe(1); // Move to the next card
+  //   setSwipeDirection('swipe-right');
+  //   setTimeout(() => {
+  //     setSwipeDirection(null);
+  //   }, 100);
+  // };
+
+  const handleInterested = async () => {
     if (currentCardIndex === personsData.length - 1) {
       // Last card reached, no more persons to show
       alert('No more persons to show.');
       return;
     }
+  
+    const currentUser = sessionStorage.getItem('username');
+    const userToInvite = personsData[currentCardIndex].username;
+  
+    // Add the current user to the pending_invites list of the user whose card is swiped right
+    const userData = JSON.parse(sessionStorage.getItem('userData'));
+    const updatedUserData = userData.map(user => {
+      if (user.username === userToInvite) {
+        user.pending_invites.push(currentUser);
+      }
+      return user;
+    });
+  
+    // Update the entire user profile of the user whose card is swiped right
+    const userProfileToUpdate = updatedUserData.find(user => user.username === userToInvite);
+    try {
+      await fetch(`http://127.0.0.1:5000/update-user/${userToInvite}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userProfileToUpdate)
+      });
+  
+      // Move to the next card and set swipe direction
     setVisitedPersons([...visitedPersons, personsData[currentCardIndex]]);
     handleSwipe(1); // Move to the next card
     setSwipeDirection('swipe-right');
-    setTimeout(() => {
-      setSwipeDirection(null);
-    }, 100);
-  };
+      setTimeout(() => {
+        setSwipeDirection(null);
+      }, 100);
+    } catch (error) {
+      console.error('Error updating user profile:', error.message);
+      return;
+    }
+  };    
 
   const handleNotInterested = () => {
     if (currentCardIndex === personsData.length - 1) {

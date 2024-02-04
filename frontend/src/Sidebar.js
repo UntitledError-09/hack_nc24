@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Card, CardContent, List, ListItem, ListItemButton, ListItemText, Divider, TextField } from '@mui/material';
+import { Button, Card, CardContent, List, ListItem, ListItemButton, ListItemText, Divider, TextField, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import './Sidebar.css'; // Import the CSS file for styling
 import ChatDialog from './ChatDialog'; // Import the ChatDialog component
 import EventDetailsPopup from './EventDetailsPopup'; // Import the EventDetailsPopup component
@@ -13,6 +13,7 @@ const Sidebar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [openProfilePopup, setOpenProfilePopup] = useState(false);
   const [userProfile, setUserProfile] = useState({});
+  const [selectedList, setSelectedList] = useState('invites'); // 'matches' or 'invites'
 
   useEffect(() => {
     // Fetch user data from the API and filter to find the logged-in user
@@ -36,7 +37,7 @@ const Sidebar = () => {
   }, []); // Empty dependency array ensures the effect runs only once
   console.log(userProfile)
 
-  const people = userProfile?.matched_users || []
+  const people = selectedList === 'matches' ? userProfile?.matched_users || [] : userProfile?.pending_invites || [];
   const events = [
     { name: 'Emancipation Proclamation Day', location: 'United States', details: 'Commemorating the issuance of the Emancipation Proclamation by President Abraham Lincoln.' },
     { name: 'National Freedom Day', location: 'United States', details: 'Celebrating the signing of the 13th Amendment to the United States Constitution.' },
@@ -82,7 +83,7 @@ const Sidebar = () => {
       <Divider />
       <Card className="scrollable-card">
         <CardContent>
-          <p disablePadding>Matches</p>
+          <p>Friends</p>
           <div className="scrollable-content">
             <List>
               {people.map((person, index) => (
